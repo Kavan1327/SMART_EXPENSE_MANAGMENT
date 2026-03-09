@@ -8,7 +8,7 @@ import com.smartexpense.expenseservice.entity.Expense;
 import com.smartexpense.expenseservice.exception.ResourceNotFoundException;
 import com.smartexpense.expenseservice.repository.ExpenseRepository;
 import com.smartexpense.expenseservice.service.BudgetService;
-import com.smartexpense.expenseservice.service.ExpenseEventProducer;
+// import com.smartexpense.expenseservice.service.ExpenseEventProducer;
 import com.smartexpense.expenseservice.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class ExpenseServiceImpl implements ExpenseService {
 
     private final ExpenseRepository expenseRepository;
-    private final ExpenseEventProducer expenseEventProducer;
+    // private final ExpenseEventProducer expenseEventProducer;
     private final BudgetService budgetService;
 
     @Override
@@ -37,7 +37,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         Expense expense = mapToEntity(request);
         Expense saved = expenseRepository.save(expense);
 
-        expenseEventProducer.sendExpenseCreatedEvent(saved);
+        // expenseEventProducer.sendExpenseCreatedEvent(saved);
 
         budgetService.checkAndNotifyBudgetExceeded(
             saved.getUserId(),
@@ -58,6 +58,13 @@ public class ExpenseServiceImpl implements ExpenseService {
         existing.setAmount(request.getAmount());
         existing.setCategoryId(request.getCategoryId());
         existing.setDescription(request.getDescription());
+        existing.setSubject(request.getSubject());
+        existing.setMerchant(request.getMerchant());
+        existing.setCurrency(request.getCurrency());
+        existing.setReimbursable(Boolean.TRUE.equals(request.getReimbursable()));
+        existing.setAddToReport(Boolean.TRUE.equals(request.getAddToReport()));
+        existing.setReceiptUrl(request.getReceiptUrl());
+        existing.setStatus(resolveStatus(request.getStatus()));
         existing.setExpenseDate(request.getExpenseDate());
 
         Expense updated = expenseRepository.save(existing);
@@ -122,6 +129,13 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .amount(request.getAmount())
                 .categoryId(request.getCategoryId())
                 .description(request.getDescription())
+                .subject(request.getSubject())
+                .merchant(request.getMerchant())
+                .currency(request.getCurrency())
+                .reimbursable(Boolean.TRUE.equals(request.getReimbursable()))
+                .addToReport(Boolean.TRUE.equals(request.getAddToReport()))
+                .receiptUrl(request.getReceiptUrl())
+                .status(resolveStatus(request.getStatus()))
                 .expenseDate(request.getExpenseDate())
                 .build();
     }
@@ -133,8 +147,22 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .amount(expense.getAmount())
                 .categoryId(expense.getCategoryId())
                 .description(expense.getDescription())
+                .subject(expense.getSubject())
+                .merchant(expense.getMerchant())
+                .currency(expense.getCurrency())
+                .reimbursable(expense.getReimbursable())
+                .addToReport(expense.getAddToReport())
+                .receiptUrl(expense.getReceiptUrl())
+                .status(expense.getStatus())
                 .expenseDate(expense.getExpenseDate())
                 .createdAt(expense.getCreatedAt())
                 .build();
+    }
+
+    private String resolveStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "SUBMITTED";
+        }
+        return status;
     }
 }

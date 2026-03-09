@@ -66,12 +66,11 @@ public class JwtTokenProvider {
     }
 
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        return parseClaims(token).getSubject();
+    }
+
+    public Date getExpiryDateFromToken(String token) {
+        return parseClaims(token).getExpiration();
     }
 
     public boolean validateToken(String token) {
@@ -93,5 +92,13 @@ public class JwtTokenProvider {
             log.error("JWT claims string is empty: {}", ex.getMessage());
         }
         return false;
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

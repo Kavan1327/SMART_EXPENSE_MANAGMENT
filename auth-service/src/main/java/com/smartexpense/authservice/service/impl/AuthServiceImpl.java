@@ -11,6 +11,7 @@ import com.smartexpense.authservice.entity.User;
 import com.smartexpense.authservice.repository.RoleRepository;
 import com.smartexpense.authservice.repository.UserRepository;
 import com.smartexpense.authservice.security.JwtTokenProvider;
+import com.smartexpense.authservice.security.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements com.smartexpense.authservice.service.Aut
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+        private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     public ApiResponse<UserResponse> register(RegisterRequest request) {
@@ -80,6 +82,9 @@ public class AuthServiceImpl implements com.smartexpense.authservice.service.Aut
                 )
         );
 
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
 
@@ -92,6 +97,7 @@ public class AuthServiceImpl implements com.smartexpense.authservice.service.Aut
                 .accessToken(token)
                 .tokenType("Bearer")
                 .role(role.name())
+                .userId(user.getId())
                 .build();
 
         return ApiResponse.<AuthResponse>builder()
@@ -100,4 +106,29 @@ public class AuthServiceImpl implements com.smartexpense.authservice.service.Aut
                 .data(authResponse)
                 .build();
     }
+
+        @Override
+        public ApiResponse<Void> logout(String token) {
+                if (token == null || token.isBlank()) {
+                        return ApiResponse.<Void>builder()
+                                        .success(false)
+                                        .message("Authorization token is required")
+                                        .build();
+                }
+
+                if (!jwtTokenProvider.validateToken(token)) {
+                        return ApiResponse.<Void>builder()
+                                        .success(false)
+                                        .message("Invalid or expired token")
+                                        .build();
+                }
+
+                tokenBlacklistService.blacklistToken(token, jwtTokenProvider.getExpiryDateFromToken(token).toInstant());
+                SecurityContextHolder.clearContext();
+
+                return ApiResponse.<Void>builder()
+                                .success(true)
+                                .message("Logout successful")
+                                .build();
+        }
 }

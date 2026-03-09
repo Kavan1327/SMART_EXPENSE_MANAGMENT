@@ -42,6 +42,31 @@ public class Expense {
     @Size(max = 255)
     private String description;
 
+    @Size(max = 255)
+    @Column(length = 255)
+    private String subject;
+
+    @Size(max = 255)
+    @Column(length = 255)
+    private String merchant;
+
+    @Size(max = 10)
+    @Column(length = 10)
+    private String currency;
+
+    private Boolean reimbursable;
+
+    private Boolean addToReport;
+
+    @Size(max = 1024)
+    @Column(length = 1024)
+    private String receiptUrl;
+
+    @NotNull
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
+    private String status;
+
     @NotNull
     @Column(nullable = false)
     private LocalDate expenseDate;
@@ -52,5 +77,14 @@ public class Expense {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.status == null || this.status.isBlank()) {
+            this.status = "SUBMITTED";
+        }
+        if (this.reimbursable == null) {
+            this.reimbursable = Boolean.FALSE;
+        }
+        if (this.addToReport == null) {
+            this.addToReport = Boolean.FALSE;
+        }
     }
 }
