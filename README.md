@@ -16,13 +16,6 @@ View analytics dashboards
 
 Designed using modern backend architecture patterns used in fintech systems.
 
-🏗 System Architecture
-<img width="869" height="409" alt="ArchitectureDiagram-3" src="https://github.com/user-attachments/assets/b4b76660-7872-4ab7-abc6-3a5dc5f42dce" />
-![ArchcitectureDiagram-1](https://github.com/user-attachments/assets/6dd816f0-6869-4e60-b148-fa95e857f173)
-
-![ArchitectureDiagram-2](https://github.com/user-attachments/assets/c1ae1b03-d609-4edd-9d1b-ec0a523b0047)
-
-
 High Level Architecture
 
                  React Frontend
