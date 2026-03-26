@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "budgets", indexes = {
@@ -27,8 +28,7 @@ public class Budget {
     @Column(nullable = false)
     private Long userId;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Long categoryId;
 
     @NotNull
@@ -42,4 +42,20 @@ public class Budget {
     @NotNull
     @Column(nullable = false)
     private Integer year;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

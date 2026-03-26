@@ -7,6 +7,7 @@ import Expenses from './pages/Expenses'
 import NewExpense from './pages/NewExpense'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import BudgetSettings from './pages/BudgetSettings'
 
 function Placeholder({ title }) {
   return (
@@ -59,7 +60,7 @@ function App() {
             <Route path="/expenses/:id/edit" element={<NewExpense />} />
             <Route path="/trips" element={<Placeholder title="Trips" />} />
             <Route path="/approvals" element={<Placeholder title="Approvals" />} />
-            <Route path="/settings" element={<Placeholder title="Settings" />} />
+            <Route path="/settings" element={<BudgetSettings />} />
             <Route path="/support" element={<Placeholder title="Support" />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
