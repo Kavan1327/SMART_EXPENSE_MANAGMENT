@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +28,29 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Value("${kafka.topic.budget-exceeded}")
     private String budgetExceededTopic;
+
+    @Override
+    public Budget saveBudget(Budget budget) {
+        Optional<Budget> existingBudget = budgetRepository.findByUserIdAndCategoryIdAndYearAndMonth(
+                budget.getUserId(),
+                budget.getCategoryId(),
+                budget.getYear(),
+                budget.getMonth()
+        );
+
+        if (existingBudget.isPresent()) {
+            Budget current = existingBudget.get();
+            current.setMonthlyLimit(budget.getMonthlyLimit());
+            return budgetRepository.save(current);
+        }
+
+        return budgetRepository.save(budget);
+    }
+
+    @Override
+    public List<Budget> getBudgetsByUserId(Long userId) {
+        return budgetRepository.findByUserIdOrderByYearDescMonthDescCategoryIdAsc(userId);
+    }
 
     @Override
     public void checkAndNotifyBudgetExceeded(Long userId, Long categoryId, int year, int month) {

@@ -35,3 +35,8 @@ export async function updateExpense(id, payload) {
 export async function deleteExpense(id) {
   await expenseApiClient.delete(`/api/expenses/${id}`)
 }
+
+export async function postBudget(payload) {
+  const response = await expenseApiClient.post('/budgets', payload)
+  return response.data
+}
